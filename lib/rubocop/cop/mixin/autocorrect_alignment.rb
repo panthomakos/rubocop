@@ -78,7 +78,7 @@ module RuboCop
         return if heredoc_ranges.any? { |h| within?(range, h) }
 
         if column_delta > 0
-          unless range.source == "\n"
+          if range.source != "\n" && !range.source_line.empty?
             corrector.insert_before(range, ' ' * column_delta)
           end
         else

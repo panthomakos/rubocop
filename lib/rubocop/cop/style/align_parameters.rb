@@ -7,9 +7,13 @@ module RuboCop
       # aligned.
       class AlignParameters < Cop
         include AutocorrectAlignment
+        include AlignmentOptions
 
-        MSG = 'Align the parameters of a method call if they span ' \
-              'more than one line.'
+        ALIGN_MSG = 'Align the parameters of a method call if they span ' \
+          'more than one line.'
+
+        INDENT_MSG = 'Indent the parameters of a method call if they span ' \
+          'more than one line.'
 
         def on_send(node)
           _receiver, method, *args = *node
@@ -21,21 +25,6 @@ module RuboCop
         end
 
         private
-
-        def fixed_indentation?
-          cop_config['EnforcedStyle'] == 'with_fixed_indentation'
-        end
-
-        def base_column(node, args)
-          if fixed_indentation?
-            lineno = target_method_lineno(node)
-            line = node.loc.expression.source_buffer.source_line(lineno)
-            indentation_of_line = /\S.*/.match(line).begin(0)
-            indentation_of_line + configured_indentation_width
-          else
-            args.first.loc.column
-          end
-        end
 
         def target_method_lineno(node)
           if node.loc.selector

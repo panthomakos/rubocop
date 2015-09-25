@@ -19,6 +19,13 @@ describe RuboCop::Cop::Style::AlignParameters do
       }
     end
 
+    it 'uses the align message' do
+      inspect_source(cop, ['function(a,',
+                           ' b)'])
+
+      expect(cop.messages).to eq([described_class::ALIGN_MSG])
+    end
+
     it 'registers an offense for parameters with single indent' do
       inspect_source(cop, ['function(a,',
                            '  if b then c else d end)'])
@@ -287,6 +294,13 @@ describe RuboCop::Cop::Style::AlignParameters do
       ]
     end
 
+    it 'uses the indent message' do
+      inspect_source(cop, ['function(a,',
+                           '         b)'])
+
+      expect(cop.messages).to eq([described_class::INDENT_MSG])
+    end
+
     it 'does not autocorrect correct source' do
       expect(autocorrect_source(cop, correct_source))
         .to eq(correct_source.join("\n"))
@@ -302,6 +316,23 @@ describe RuboCop::Cop::Style::AlignParameters do
 
       expect(autocorrect_source(cop, original_source))
         .to eq(correct_source.join("\n"))
+    end
+
+    it 'does not auto-correct nested method calls' do
+      original_source = [
+        'create(:a, :b,',
+        'create2(:c, :d,',
+        ':e))'
+      ]
+
+      corrected_source = [
+        'create(:a, :b,',
+        '  create2(:c, :d,',
+        '  :e))'
+      ]
+
+      expect(autocorrect_source(cop, original_source))
+        .to eq(corrected_source.join("\n"))
     end
 
     it 'autocorrects by indenting when not indented' do
